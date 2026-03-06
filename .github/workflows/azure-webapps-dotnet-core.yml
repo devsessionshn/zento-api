@@ -23,6 +23,9 @@ env:
   AZURE_WEBAPP_NAME: zento-api    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '8'                 # set this to the .NET Core version to use
+  AZURE_RESOURCE_GROUP: zento-dev     # Azure resource group name
+  AZURE_LOCATION: eastus              # Azure region
+  ENVIRONMENT: dev                    # Environment suffix
 
 on:
   push:
@@ -74,20 +77,29 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
+      - uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.DEVOPS_SECRET }}
 
+      - name: Deploy Infrastructure with Bicep
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+          template: .infra/main.bicep
+          parameters: location=${{ env.AZURE_LOCATION }} environment=${{ env.ENVIRONMENT }}
+
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}-${{ env.ENVIRONMENT }}
           package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
