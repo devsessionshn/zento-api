@@ -2,8 +2,8 @@ param location string
 param appServicePlanName string
 param webAppName string
 param environment string
-param appServicePlanSkuName string = 'B1'
-param appServicePlanSkuTier string = 'Basic'
+param appServicePlanSkuName string = 'S1'
+param appServicePlanSkuTier string = 'Standard'
 
 var appServicePlanFullName = '${appServicePlanName}-${environment}'
 var webAppFullName = '${webAppName}-${environment}'
