@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Zento.Api/Zento.Api.csproj" />
+  </Folder>
+</Solution>
