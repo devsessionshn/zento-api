@@ -91,7 +91,7 @@ jobs:
           template: .infra/main.bicep
           parameters: .infra/main.bicepparam
           deploymentName: zento-api-deployment
-          location: ${{ env.AZURE_LOCATION }}
+          region: ${{ env.AZURE_LOCATION }}
           scope: subscription
 
       - name: Download artifact from build job
