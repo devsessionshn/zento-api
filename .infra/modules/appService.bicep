@@ -2,6 +2,8 @@ param location string
 param appServicePlanName string
 param webAppName string
 param environment string
+param appServicePlanSkuName string = 'B1'
+param appServicePlanSkuTier string = 'Basic'
 
 var appServicePlanFullName = '${appServicePlanName}-${environment}'
 var webAppFullName = '${webAppName}-${environment}'
@@ -18,8 +20,8 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   tags: commonTags
   kind: 'linux'
   sku: {
-    name: 'B1'
-    tier: 'Basic'
+    name: appServicePlanSkuName
+    tier: appServicePlanSkuTier
     capacity: 1
   }
   properties: {

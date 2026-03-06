@@ -2,6 +2,8 @@ targetScope = 'subscription'
 
 param location string = 'eastus'
 param appServicePlanName string = 'zento-api-plan'
+param appServicePlanSkuName string = 'B1'
+param appServicePlanSkuTier string = 'Basic'
 param webAppName string = 'zento-api'
 param environment string = 'dev'
 param resourceGroupName string = 'zento-dev'
@@ -26,6 +28,8 @@ module appService 'modules/appService.bicep' = {
   params: {
     location: location
     appServicePlanName: appServicePlanName
+    appServicePlanSkuName: appServicePlanSkuName
+    appServicePlanSkuTier: appServicePlanSkuTier
     webAppName: webAppName
     environment: environment
   }
