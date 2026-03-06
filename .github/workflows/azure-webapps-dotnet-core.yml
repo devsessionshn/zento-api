@@ -26,7 +26,7 @@ env:
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "development" ]
   workflow_dispatch:
 
 permissions:
@@ -78,6 +78,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.DEVOPS_SECRET }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
