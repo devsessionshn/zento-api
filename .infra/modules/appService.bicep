@@ -22,7 +22,6 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   sku: {
     name: appServicePlanSkuName
     tier: appServicePlanSkuTier
-    capacity: 1
   }
   properties: {
     reserved: true
@@ -41,7 +40,7 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOTNET|10.0'
+      linuxFxVersion: 'DOTNET|8.0'
       alwaysOn: false
       http20Enabled: true
       minTlsVersion: '1.2'

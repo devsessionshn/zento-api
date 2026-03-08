@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param location = 'eastus'
+param location = 'eastus2'
 param appServicePlanName = 'zento-api-plan'
 param appServicePlanSkuName = 'F1'
 param appServicePlanSkuTier = 'Free'

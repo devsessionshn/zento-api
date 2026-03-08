@@ -1,0 +1,226 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.41.2.15936",
+      "templateHash": "4277485845753298505"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "zento-api-plan"
+    },
+    "appServicePlanSkuName": {
+      "type": "string",
+      "defaultValue": "F1"
+    },
+    "appServicePlanSkuTier": {
+      "type": "string",
+      "defaultValue": "Free"
+    },
+    "webAppName": {
+      "type": "string",
+      "defaultValue": "zento-api"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev"
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "zento-dev"
+    }
+  },
+  "variables": {
+    "commonTags": {
+      "environment": "[parameters('environment')]",
+      "createdBy": "github-actions",
+      "project": "zento-api"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('commonTags')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appServiceDeployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "appServicePlanSkuName": {
+            "value": "[parameters('appServicePlanSkuName')]"
+          },
+          "appServicePlanSkuTier": {
+            "value": "[parameters('appServicePlanSkuTier')]"
+          },
+          "webAppName": {
+            "value": "[parameters('webAppName')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.41.2.15936",
+              "templateHash": "1042128923948364905"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "appServicePlanName": {
+              "type": "string"
+            },
+            "webAppName": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "appServicePlanSkuName": {
+              "type": "string",
+              "defaultValue": "S1"
+            },
+            "appServicePlanSkuTier": {
+              "type": "string",
+              "defaultValue": "Standard"
+            }
+          },
+          "variables": {
+            "appServicePlanFullName": "[format('{0}-{1}', parameters('appServicePlanName'), parameters('environment'))]",
+            "webAppFullName": "[format('{0}-{1}', parameters('webAppName'), parameters('environment'))]",
+            "commonTags": {
+              "environment": "[parameters('environment')]",
+              "createdBy": "github-actions",
+              "project": "zento-api"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2023-01-01",
+              "name": "[variables('appServicePlanFullName')]",
+              "location": "[parameters('location')]",
+              "tags": "[variables('commonTags')]",
+              "kind": "linux",
+              "sku": {
+                "name": "[parameters('appServicePlanSkuName')]",
+                "tier": "[parameters('appServicePlanSkuTier')]"
+              },
+              "properties": {
+                "reserved": true
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2023-01-01",
+              "name": "[variables('webAppFullName')]",
+              "location": "[parameters('location')]",
+              "tags": "[variables('commonTags')]",
+              "kind": "app,linux",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanFullName'))]",
+                "siteConfig": {
+                  "linuxFxVersion": "DOTNET|8.0",
+                  "alwaysOn": false,
+                  "http20Enabled": true,
+                  "minTlsVersion": "1.2"
+                },
+                "httpsOnly": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanFullName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}', variables('webAppFullName'), 'appsettings')]",
+              "properties": {
+                "ASPNETCORE_ENVIRONMENT": "[parameters('environment')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppFullName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "webAppUrl": {
+              "type": "string",
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', variables('webAppFullName')), '2023-01-01').defaultHostName)]"
+            },
+            "webAppName": {
+              "type": "string",
+              "value": "[variables('webAppFullName')]"
+            },
+            "appServicePlanId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanFullName'))]"
+            },
+            "webAppResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/sites', variables('webAppFullName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "resourceGroupId": {
+      "type": "string",
+      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+    },
+    "webAppUrl": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'appServiceDeployment'), '2025-04-01').outputs.webAppUrl.value]"
+    },
+    "webAppName": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'appServiceDeployment'), '2025-04-01').outputs.webAppName.value]"
+    },
+    "appServicePlanId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'appServiceDeployment'), '2025-04-01').outputs.appServicePlanId.value]"
+    },
+    "webAppResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'appServiceDeployment'), '2025-04-01').outputs.webAppResourceId.value]"
+    }
+  }
+}
