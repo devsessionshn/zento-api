@@ -24,7 +24,7 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '8'                 # set this to the .NET Core version to use
   AZURE_RESOURCE_GROUP: zento-dev     # Azure resource group name
-  AZURE_LOCATION: eastus2             # Azure region
+  AZURE_LOCATION: canadacentral       # Azure region
   ENVIRONMENT: dev                    # Environment suffix
 
 on:
