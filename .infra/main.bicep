@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param location string = 'eastus'
+param location string = 'canadacentral'
 param appServicePlanName string = 'zento-api-plan'
 param appServicePlanSkuName string = 'F1'
 param appServicePlanSkuTier string = 'Free'
