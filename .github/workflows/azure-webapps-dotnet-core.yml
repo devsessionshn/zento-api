@@ -105,10 +105,13 @@ jobs:
         with:
           name: .net-app
 
+      - name: List artifact directory
+        run: ls -R .
+
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}-${{ env.ENVIRONMENT }}
-          package: .net-app
+          package: "."
