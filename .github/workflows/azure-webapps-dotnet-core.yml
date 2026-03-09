@@ -25,7 +25,7 @@ env:
   DOTNET_VERSION: '8'                 # set this to the .NET Core version to use
   AZURE_RESOURCE_GROUP: zento-dev     # Azure resource group name
   AZURE_LOCATION: canadacentral       # Azure region
-  ENVIRONMENT: development                    # Environment suffix
+  ENVIRONMENT: dev                    # Environment suffix
 
 on:
   push:
