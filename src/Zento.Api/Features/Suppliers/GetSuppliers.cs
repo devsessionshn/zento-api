@@ -6,7 +6,11 @@ using Zento.Api.Infrastructure.Data;
 namespace Zento.Api.Features.Suppliers;
 
 // Query
-public record GetSuppliersQuery(int Page = 1, int PageSize = 10, string? Search = null) : IRequest<GetSuppliersResponse>;
+public record GetSuppliersQuery(
+    int Page = 1,
+    int PageSize = 10,
+    string? Search = null
+) : IRequest<GetSuppliersResponse>;
 
 // Response
 public record SupplierDto(

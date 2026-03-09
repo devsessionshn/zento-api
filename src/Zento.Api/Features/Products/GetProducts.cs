@@ -6,7 +6,11 @@ using Zento.Api.Infrastructure.Data;
 namespace Zento.Api.Features.Products;
 
 // Query
-public record GetProductsQuery(int Page = 1, int PageSize = 10, string? Search = null) : IRequest<GetProductsResponse>;
+public record GetProductsQuery(
+    int Page = 1,
+    int PageSize = 10,
+    string? Search = null
+) : IRequest<GetProductsResponse>;
 
 // Response
 public record ProductDto(
