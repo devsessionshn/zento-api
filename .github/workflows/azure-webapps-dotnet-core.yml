@@ -21,11 +21,11 @@ name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
   AZURE_WEBAPP_NAME: zento-api    # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_PACKAGE_PATH: ./publish      # set this to the path to your published output
   DOTNET_VERSION: '8'                 # set this to the .NET Core version to use
   AZURE_RESOURCE_GROUP: zento-dev     # Azure resource group name
   AZURE_LOCATION: canadacentral       # Azure region
-  ENVIRONMENT: dev                    # Environment suffix
+  ENVIRONMENT: development                    # Environment suffix
 
 on:
   push:
@@ -59,13 +59,13 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   deploy:
     permissions:
