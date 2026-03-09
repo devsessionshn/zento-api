@@ -6,7 +6,7 @@ This file provides guidance for GitHub Copilot, Copilot agents, and other AI ass
 ---
 
 ## Build & Publish
-- Always use `dotnet publish -c Release -o ./publish` to generate production output.
+- Always use `dotnet publish src/Zento.Api/Zento.Api.csproj -c Release -o ./publish` to generate production output. Do NOT run publish on the solution file.
 - Do not deploy the project root or source files—deploy only the published output.
 
 ## GitHub Actions Workflow
@@ -15,7 +15,7 @@ This file provides guidance for GitHub Copilot, Copilot agents, and other AI ass
   - Deployment step
 - The workflow must:
   1. Build the app
-  2. Publish to `./publish`
+  2. Publish the main project file (`src/Zento.Api/Zento.Api.csproj`) to `./publish`
   3. Upload artifact from `./publish`
   4. Deploy artifact from `./publish` to Azure Web App
 
