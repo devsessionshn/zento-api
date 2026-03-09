@@ -31,6 +31,11 @@ on:
   push:
     branches: [ "development" ]
   workflow_dispatch:
+    inputs:
+      deploy_infra:
+        description: 'Deploy infrastructure (Bicep)?'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
@@ -85,6 +90,7 @@ jobs:
           creds: ${{ secrets.DEVOPS_SECRET }}
 
       - name: Deploy Infrastructure with Bicep
+        if: ${{ github.event.inputs.deploy_infra == 'true' }}
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
