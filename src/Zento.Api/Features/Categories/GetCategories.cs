@@ -1,12 +1,11 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Zento.Api.Infrastructure.Data;
+using Zento.Api.Common.Models;
 
 namespace Zento.Api.Features.Categories;
 
 // Query
-public record GetCategoriesQuery(int Page = 1, int PageSize = 10, string? Search = null) : IRequest<GetCategoriesResponse>;
+public record GetCategoriesQuery(int Page = 1, int PageSize = 10, string? Search = null) : IRequest<Result<PagedResult<CategoryDto>>>;
 
 // Response
 public record CategoryDto(
@@ -16,13 +15,6 @@ public record CategoryDto(
     bool IsActive,
     int ProductCount,
     DateTime CreatedAt);
-
-public record GetCategoriesResponse(
-    IReadOnlyList<CategoryDto> Items,
-    int TotalCount,
-    int Page,
-    int PageSize,
-    int TotalPages);
 
 // Validator
 public class GetCategoriesQueryValidator : AbstractValidator<GetCategoriesQuery>
@@ -35,41 +27,38 @@ public class GetCategoriesQueryValidator : AbstractValidator<GetCategoriesQuery>
 }
 
 // Handler
-public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, GetCategoriesResponse>
-{
-    private readonly ZentoDbContext _context;
+public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, Result<PagedResult<CategoryDto>>>{
+    private readonly ICategoryRepository _repository;
 
-    public GetCategoriesHandler(ZentoDbContext context)
+    public GetCategoriesHandler(ICategoryRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
-    public async Task<GetCategoriesResponse> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<CategoryDto>>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Categories.AsQueryable();
+        var pagedCategories = await _repository.GetCategoriesAsync(
+            request.Page,
+            request.PageSize,
+            request.Search,
+            cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(request.Search))
-        {
-            query = query.Where(c => c.Name.Contains(request.Search));
-        }
+    // mapping Category to CategoryDto
+        var items = pagedCategories.Data
+            .Select(category => new CategoryDto(
+                category.Id,
+                category.Name,
+                category.Description,
+                category.IsActive,
+                category.Products.Count,
+                category.CreatedAt))
+            .ToList();
+    
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query
-            .OrderBy(c => c.Name)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(c => new CategoryDto(
-                c.Id,
-                c.Name,
-                c.Description,
-                c.IsActive,
-                c.Products.Count,
-                c.CreatedAt))
-            .ToListAsync(cancellationToken);
-
-        var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
-
-        return new GetCategoriesResponse(items, totalCount, request.Page, request.PageSize, totalPages);
+        return Result<PagedResult<CategoryDto>>.Success(new PagedResult<CategoryDto>(
+            items,
+            pagedCategories.TotalCount,
+            pagedCategories.Page,
+            pagedCategories.PageSize));
     }
 }

@@ -18,7 +18,9 @@ public static class CategoryEndpoints
             CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetCategoriesQuery(page, pageSize, search), ct);
-            return Results.Ok(result);
+            return result.IsSuccess && result.Value is not null
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(new { result.Error });
         })
         .WithName("GetCategories")
         .WithDescription("Get all categories with pagination");

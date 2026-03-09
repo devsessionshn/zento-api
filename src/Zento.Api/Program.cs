@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Zento.Api.Common.Behaviors;
 using Zento.Api.Endpoints;
+using Zento.Api.Features.Categories;
 using Zento.Api.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ZentoDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
         ?? "Data Source=zento.db"));
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // Add MediatR
 builder.Services.AddMediatR(cfg =>
@@ -83,6 +86,11 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ZentoDbContext>();
     db.Database.EnsureCreated();
+
+    if (app.Environment.IsDevelopment())
+    {
+        await DevelopmentDataSeeder.SeedAsync(db);
+    }
 }
 
 app.Run();
