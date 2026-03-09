@@ -99,8 +99,6 @@ jobs:
         with:
           name: .net-app
 
-      - name: List publish directory
-        run: ls -R ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
